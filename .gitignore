@@ -1,0 +1,44 @@
+## .NET
+bin/
+obj/
+*.user
+*.suo
+.vs/
+*.rsuser
+
+## Build results
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+build/
+bld/
+[Bb]in/
+[Oo]bj/
+
+## NuGet
+*.nupkg
+*.snupkg
+.nuget/
+packages/
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+## User-specific files
+*.userprefs
+*.dbmdl
+*.jfm
+
+## Logs
+*.log
+logs/
+
+## Certificates & secrets
+*.pfx
+*.pem
+appsettings.Development.json
+
+## OS
+.DS_Store
+Thumbs.db
