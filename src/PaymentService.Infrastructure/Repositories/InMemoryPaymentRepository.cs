@@ -23,4 +23,16 @@ public class InMemoryPaymentRepository : IPaymentRepository
         var payment = _payments.Values.FirstOrDefault(p => p.OrderId == orderId);
         return Task.FromResult(payment);
     }
+
+    public Task<Payment?> GetByIdAsync(Guid id, CancellationToken cancellationToken)
+    {
+        _payments.TryGetValue(id, out var payment);
+        return Task.FromResult(payment);
+    }
+
+    public Task<IReadOnlyList<Payment>> GetAllAsync(CancellationToken cancellationToken)
+    {
+        IReadOnlyList<Payment> payments = _payments.Values.ToList();
+        return Task.FromResult(payments);
+    }
 }

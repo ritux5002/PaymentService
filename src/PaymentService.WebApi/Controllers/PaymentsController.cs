@@ -1,6 +1,8 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using PaymentService.Application.Features.Payments.Commands.ProcessPayment;
+using PaymentService.Application.Features.Payments.Queries.GetPaymentById;
+using PaymentService.Application.Features.Payments.Queries.GetPayments;
 
 namespace PaymentService.WebApi.Controllers;
 
@@ -28,6 +30,26 @@ public class PaymentsController : ControllerBase
         var command = new ProcessPaymentCommand(request.OrderId, request.Amount);
         var result = await _mediator.Send(command, cancellationToken);
         return Ok(result);
+    }
+
+    /// <summary>
+    /// Lista todos los pagos procesados.
+    /// </summary>
+    [HttpGet]
+    public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(new GetPaymentsQuery(), cancellationToken);
+        return Ok(result);
+    }
+
+    /// <summary>
+    /// Obtiene un pago por su Id.
+    /// </summary>
+    [HttpGet("{id:guid}")]
+    public async Task<IActionResult> GetById(Guid id, CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(new GetPaymentByIdQuery(id), cancellationToken);
+        return result is null ? NotFound() : Ok(result);
     }
 }
 
