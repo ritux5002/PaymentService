@@ -1,4 +1,6 @@
 using PaymentService.Domain.Enums;
+using PaymentService.Domain.Exceptions;
+using PaymentService.Domain.ValueObjects;
 
 namespace PaymentService.Domain.Entities;
 
@@ -16,12 +18,23 @@ public class Payment
 
     public Guid Id { get; private set; }
     public Guid OrderId { get; private set; }
-    public decimal Amount { get; private set; }
+    public Money Amount { get; private set; }
     public PaymentStatus Status { get; private set; }
     public string TransactionId { get; private set; }
     public DateTime ProcessedAt { get; private set; }
 
-    private Payment(Guid orderId, decimal amount, PaymentStatus status, string transactionId)
+    // Constructor para EF Core: Amount se materializa como owned type
+    private Payment(Guid id, Guid orderId, PaymentStatus status, string transactionId, DateTime processedAt)
+    {
+        Id = id;
+        OrderId = orderId;
+        Amount = null!;
+        Status = status;
+        TransactionId = transactionId;
+        ProcessedAt = processedAt;
+    }
+
+    private Payment(Guid orderId, Money amount, PaymentStatus status, string transactionId)
     {
         Id = Guid.NewGuid();
         OrderId = orderId;
@@ -31,15 +44,12 @@ public class Payment
         ProcessedAt = DateTime.UtcNow;
     }
 
-    public static Payment Process(Guid orderId, decimal amount)
+    public static Payment Create(Guid orderId, Money amount)
     {
         if (orderId == Guid.Empty)
-            throw new ArgumentException("El ID de la orden no puede estar vacío.", nameof(orderId));
+            throw new DomainRuleException("El ID de la orden no puede estar vacío.");
 
-        if (amount <= 0)
-            throw new ArgumentException("El monto debe ser mayor a cero.", nameof(amount));
-
-        var status = amount < ApprovalLimit ? PaymentStatus.Approved : PaymentStatus.Rejected;
+        var status = amount.Amount < ApprovalLimit ? PaymentStatus.Approved : PaymentStatus.Rejected;
         var transactionId = $"TX-{Guid.NewGuid().ToString("N")[..8].ToUpperInvariant()}";
 
         return new Payment(orderId, amount, status, transactionId);

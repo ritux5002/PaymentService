@@ -1,10 +1,8 @@
 using MediatR;
-using PaymentService.Application.DTOs;
-using PaymentService.Domain.Interfaces;
+using PaymentService.Application.Features.Payments.GetPaymentById;
+using PaymentService.Application.Common.Interfaces;
 
-namespace PaymentService.Application.Features.Payments.Queries.GetPayments;
-
-public record GetPaymentsQuery : IRequest<IReadOnlyList<PaymentDto>>;
+namespace PaymentService.Application.Features.Payments.GetPayments;
 
 public class GetPaymentsQueryHandler : IRequestHandler<GetPaymentsQuery, IReadOnlyList<PaymentDto>>
 {
@@ -20,13 +18,7 @@ public class GetPaymentsQueryHandler : IRequestHandler<GetPaymentsQuery, IReadOn
         var payments = await _paymentRepository.GetAllAsync(cancellationToken);
 
         return payments
-            .Select(payment => new PaymentDto(
-                payment.Id,
-                payment.OrderId,
-                payment.Amount,
-                payment.Status.ToString(),
-                payment.TransactionId,
-                payment.ProcessedAt))
+            .Select(payment => payment.ToDto())
             .ToList();
     }
 }

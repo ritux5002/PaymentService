@@ -7,14 +7,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="FluentValidation.AspNetCore" Version="11.3.1" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\PaymentService.Application\PaymentService.Application.csproj" />
     <ProjectReference Include="..\PaymentService.Infrastructure\PaymentService.Infrastructure.csproj" />
-    <ProjectReference Include="..\PaymentService.Domain\PaymentService.Domain.csproj" />
   </ItemGroup>
 
 </Project>

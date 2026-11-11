@@ -1,8 +1,6 @@
-using FluentValidation;
-using MediatR;
-using PaymentService.Application.Common.Behaviors;
-using PaymentService.Application.Features.Payments.Commands.ProcessPayment;
+using PaymentService.Application;
 using PaymentService.Infrastructure;
+using PaymentService.WebApi.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,24 +20,26 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 
-// MediatR + Behaviors
-builder.Services.AddMediatR(cfg =>
-{
-    cfg.RegisterServicesFromAssemblyContaining<ProcessPaymentCommand>();
-    cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
-    cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(LoggingBehavior<,>));
-});
-
-// FluentValidation — registra todos los validators del ensamblado Application
-builder.Services.AddValidatorsFromAssemblyContaining<ProcessPaymentCommand>();
+// Application (MediatR + behaviors + validators)
+builder.Services.AddApplication();
 
 // Infrastructure
 builder.Services.AddInfrastructure();
+
+// Exception handler (IExceptionHandler — se activa con app.UseExceptionHandler() más abajo)
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+builder.Services.AddProblemDetails();
 
 var app = builder.Build();
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // FASE 2: Pipeline de middleware
+//
+// SIN AUTENTICACIÓN (decisión deliberada): PaymentService es un servicio interno que solo
+// consume MiEcommerce desde la red interna (server-to-server). No lo llama ningún usuario final,
+// así que no hay un usuario para propagar: el JWT de MiEcommerce identifica clientes, no servicios.
+// En producción se protegería a nivel de red (no exponerlo públicamente) o con autenticación
+// servicio-a-servicio (mTLS, client credentials), no reenviando el token del usuario.
 // ═══════════════════════════════════════════════════════════════════════════════
 
 app.UseExceptionHandler(); // ← PRIMERO: captura toda excepción de la cadena

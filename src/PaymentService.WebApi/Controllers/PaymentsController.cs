@@ -1,8 +1,9 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using PaymentService.Application.Features.Payments.Commands.ProcessPayment;
-using PaymentService.Application.Features.Payments.Queries.GetPaymentById;
-using PaymentService.Application.Features.Payments.Queries.GetPayments;
+using PaymentService.WebApi.Contracts;
+using PaymentService.Application.Features.Payments.ProcessPayment;
+using PaymentService.Application.Features.Payments.GetPaymentById;
+using PaymentService.Application.Features.Payments.GetPayments;
 
 namespace PaymentService.WebApi.Controllers;
 
@@ -49,8 +50,6 @@ public class PaymentsController : ControllerBase
     public async Task<IActionResult> GetById(Guid id, CancellationToken cancellationToken)
     {
         var result = await _mediator.Send(new GetPaymentByIdQuery(id), cancellationToken);
-        return result is null ? NotFound() : Ok(result);
+        return Ok(result);
     }
 }
-
-public record ProcessPaymentRequest(Guid OrderId, decimal Amount);
